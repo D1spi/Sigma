@@ -1,0 +1,34 @@
+{
+  // Configuraciones generales del editor
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "editor.wordWrap": "on",
+  "files.trimTrailingWhitespace": true,
+  "workbench.iconTheme": "vscode-icons",
+
+  // Configuraciones de HTML
+  "editor.linkedEditing": true,
+
+  // Configuraciones de JS y TS
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+
+  // Configuraciones para ESLint
+  "eslint.format.enable": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+
+  // Configuraciones para Prettier
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.tabWidth": 2,
+
+  // Configuraciones para GitLens
+  "gitlens.currentLine.enabled": true,
+  "gitlens.hovers.enabled": true,
+  "gitlens.codeLens.recentChange.enabled": true,
+  "gitlens.codeLens.authors.enabled": true,
+
+  // Configuraciones para Conventional Commits
+  "conventionalCommits.scopes": ["feat", "fix", "docs", "chore", "refactor", "perf"]
+}

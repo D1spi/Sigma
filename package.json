@@ -1,0 +1,63 @@
+{
+  "name": "boilerplate-nodejs",
+  "version": "1.0.0",
+  "description": "Este repositorio es tu punto de partida ideal para proyectos de Node.js. Está equipado con herramientas modernas para optimizar y mejorar tu experiencia de desarrollo.",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch --env-file=.env ./src/server.ts",
+    "start": "node ./dist/server.js",
+    "start:local": "node --env-file=.env ./dist/server.js",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write src",
+    "test": "tsx --env-file=.env.test ./node_modules/jest/bin/jest.js --config jest.config.js --detectOpenHandles --forceExit"
+  },
+  "exports": "./dist/index.mjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oriolcortes/Boilerplate-NodeJS.git"
+  },
+  "keywords": [
+    "JS",
+    "NodeJS"
+  ],
+  "author": "oriolcortes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oriolcortes/Boilerplate-NodeJS/issues"
+  },
+  "homepage": "https://github.com/oriolcortes/Boilerplate-NodeJS#readme",
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.4",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.9",
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.14.1",
+    "esbuild": "^0.25.2",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.2",
+    "prisma": "^6.2.1",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2"
+  }
+}
