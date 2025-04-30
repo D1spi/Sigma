@@ -4,10 +4,15 @@
 export interface IUser {
   id?: string;
   name: string;
+  lastname: string;
   email: string;
   password: string;
-  birthday: Date;
+  address?: string;
+  birthday?: Date;
   isBlocked?: boolean;
+  authToken?: string;
+  refreshToken?: string;
+  tokensValid?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   token?: string;
