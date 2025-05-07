@@ -9,12 +9,10 @@ import { AppError } from './application.error';
 import logger from '../config/logger';
 
 export class TokenHelper {
-  static readonly generateToken = (payload: object): string => {
+  static readonly generateToken = (payload: object, expiresIn: string = '1h'): string => {
     logger.debug('TokenHelper: Generating token', { payloadSummary: Object.keys(payload) });
 
-    const options: jwt.SignOptions = {
-      expiresIn: '1h',
-    };
+    const options: jwt.SignOptions = { expiresIn };
     if (!SECRET_KEY) {
       logger.error('TokenHelper: SECRET_KEY is not defined');
       throw new AppError('SECRET_KEY is not defined', httpStatus.INTERNAL_SERVER_ERROR);
@@ -23,6 +21,16 @@ export class TokenHelper {
     const token = jwt.sign(payload, SECRET_KEY, options);
     logger.debug('TokenHelper: Token generated successfully');
     return token;
+  };
+
+  /** Genera token de autenticación (expira en 5 minutos) */
+  static readonly generateAuthToken = (payload: object): string => {
+    return this.generateToken(payload, '5m');
+  };
+
+  /** Genera token de refresco (expira en 24 horas) */
+  static readonly generateRefreshToken = (payload: object): string => {
+    return this.generateToken(payload, '24h');
   };
 
   static readonly verifyToken = (token: string): string | JwtPayload => {

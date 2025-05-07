@@ -26,6 +26,7 @@ export class AuthController {
 
       const response = {
         message: 'Login successful',
+        // quitar antes de publicar lol son datos sensibles
         data: user,
       };
       res.send(response);
