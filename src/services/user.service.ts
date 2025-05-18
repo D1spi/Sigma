@@ -19,10 +19,15 @@ export class UserService {
     this.defaultProjection = {
       id: true,
       name: true,
+      lastname: true,
       email: true,
+      address: true,
       password: false,
       birthday: true,
       isBlocked: true,
+      authToken: false,
+      refreshToken: false,
+      tokensValid: false,
       createdAt: false,
       updatedAt: false,
     };
@@ -33,11 +38,17 @@ export class UserService {
     if (data.name && typeof data.name === 'string') {
       normalizedData.name = data.name.trim();
     }
+    if (data.lastname && typeof data.lastname === 'string') {
+      normalizedData.lastname = data.lastname.trim();
+    }
     if (data.email && typeof data.email === 'string') {
       normalizedData.email = data.email.toLowerCase().trim();
     }
     if (data.password && typeof data.password === 'string') {
       normalizedData.password = data.password.trim();
+    }
+    if (data.address && typeof data.address === 'string') {
+      normalizedData.address = data.address.trim();
     }
     if (data.birthday && typeof data.birthday === 'string') {
       normalizedData.birthday = new Date(data.birthday);
@@ -49,7 +60,9 @@ export class UserService {
     return normalizedData;
   };
 
-  private readonly getAge = (birthday: Date): number => {
+  private readonly getAge = (birthday: Date | undefined): number => {
+    if (!birthday) return 0;
+
     const today = new Date();
     let age = today.getFullYear() - birthday.getFullYear();
     const monthDiff = today.getMonth() - birthday.getMonth();
@@ -61,12 +74,12 @@ export class UserService {
   };
 
   private readonly validatePassword = (password: string): boolean => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{5,30}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z]).{5,}$/;
     const isValid = passwordRegex.test(password);
     if (!isValid) {
       logger.warn('Password validation failed. Provided password does not meet the required complexity.');
       throw new AppError(
-        'Password must be between 5 to 30 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+        'La contraseña debe tener al menos 5 caracteres, una mayúscula y una minúscula',
         httpStatus.BAD_REQUEST,
       );
     }
@@ -108,20 +121,28 @@ export class UserService {
     const existingUser = await this.userRepository.getByEmail(normalizedData.email, this.defaultProjection);
     if (existingUser) {
       logger.warn(`User with email ${normalizedData.email} already exists`);
-      throw new AppError('A user with this email already exists', httpStatus.CONFLICT);
+      throw new AppError('Ya existe un usuario con este email', httpStatus.CONFLICT);
     }
-    if (this.getAge(normalizedData.birthday) < 18) {
-      logger.warn('User is under 18 years old', { birthday: normalizedData.birthday });
-      throw new AppError('User must be at least 18 years old', httpStatus.BAD_REQUEST);
-    }
+
+    // Validar contraseña
     this.validatePassword(normalizedData.password);
+
+    // Eliminar la confirmación de contraseña si existe
+    if ('confirmPassword' in normalizedData) {
+      delete normalizedData['confirmPassword'];
+    }
+
+    // Encriptar la contraseña
     normalizedData.password = await PasswordHelper.hashPassword(normalizedData.password);
+
     const projection = { ...this.defaultProjection, isBlocked: false };
     const createdUser = await this.userRepository.create(normalizedData, projection);
+
     if (!createdUser) {
       logger.warn('User creation failed');
-      throw new AppError('User creation failed', httpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError('Error al crear el usuario', httpStatus.INTERNAL_SERVER_ERROR);
     }
+
     logger.info(`User created successfully with email ${normalizedData.email}`);
     return createdUser;
   };
@@ -131,34 +152,35 @@ export class UserService {
     const userToUpdate = await this.userRepository.getById(id, this.defaultProjection);
     if (!userToUpdate) {
       logger.warn(`User with id ${id} not found for update`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new AppError('Usuario no encontrado', httpStatus.NOT_FOUND);
     }
     if (userToUpdate.isBlocked) {
       logger.warn(`User with id ${id} is blocked and cannot be updated`);
-      throw new AppError('User is blocked', httpStatus.FORBIDDEN);
+      throw new AppError('Usuario bloqueado', httpStatus.FORBIDDEN);
     }
 
     const normalizedData = this.normalizeUserData(data);
-    if (this.getAge(normalizedData.birthday) < 18) {
-      logger.warn('User is under 18 years old', { birthday: normalizedData.birthday });
-      throw new AppError('User must be at least 18 years old', httpStatus.BAD_REQUEST);
-    }
+
+    // Validación de email para evitar duplicados
     if (normalizedData.email) {
       const existingUser = await this.userRepository.getByEmail(normalizedData.email, this.defaultProjection);
       if (existingUser?.id && existingUser?.id.toString() !== id) {
         logger.warn(`Another user with email ${normalizedData.email} already exists`);
-        throw new AppError('A user with this email already exists', httpStatus.CONFLICT);
+        throw new AppError('Ya existe un usuario con este email', httpStatus.CONFLICT);
       }
     }
+
+    // Validación y encriptación de contraseña si se proporciona
     if (normalizedData.password) {
       this.validatePassword(normalizedData.password);
       normalizedData.password = await PasswordHelper.hashPassword(normalizedData.password);
     }
+
     const projection = { ...this.defaultProjection };
     const userUpdated = await this.userRepository.update(id, normalizedData, projection);
     if (!userUpdated) {
       logger.warn(`User with id ${id} not found after update attempt`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new AppError('Usuario no encontrado', httpStatus.NOT_FOUND);
     }
     logger.info(`User with id ${id} updated successfully`);
     return userUpdated;

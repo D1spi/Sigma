@@ -11,8 +11,8 @@
     "sourceMap": true, // Generate source maps for easier debugging in editors or dev tools
     "skipLibCheck": true, // Skip type-checking of declaration files (*.d.ts) for faster compilation
     "outDir": "dist", // Directory where compiled JS files will be emitted
-    "rootDir": "src" // Root folder containing source files
+    "rootDir": "." // Root folder containing source and test files
   },
-  "include": ["src"], // Include all files under the 'src' folder for compilation
+  "include": ["src", "tests"], // Include source and test files for compilation
   "exclude": ["node_modules"] // Exclude 'node_modules' from the compilation process
 }
