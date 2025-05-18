@@ -24,10 +24,11 @@ export class AuthController {
       const { email, password } = req.body;
       const user = await this.authService.login(email, password);
 
+      // Solo enviar información relevante en la respuesta
       const response = {
         message: 'Login successful',
-        // quitar antes de publicar lol son datos sensibles
-        data: user,
+        authToken: user.authToken,
+        refreshToken: user.refreshToken
       };
       res.send(response);
     } catch (error) {
@@ -59,6 +60,30 @@ export class AuthController {
       if (!(error instanceof AppError)) {
         error = new AppError('Registration failed', httpStatus.INTERNAL_SERVER_ERROR, {
           email: req.body.email,
+          originalError: error,
+        });
+      }
+      next(error);
+    }
+  };
+
+  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    logger.debug('Controller: Received logout request');
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        logger.warn('Controller: No user ID provided for logout');
+        throw new AppError('User ID is required', httpStatus.BAD_REQUEST);
+      }
+
+      await this.authService.logout(userId);
+
+      res.json({ message: 'Logout successful' });
+    } catch (error) {
+      logger.debug('Controller: Error during logout');
+      if (!(error instanceof AppError)) {
+        error = new AppError('Logout failed', httpStatus.INTERNAL_SERVER_ERROR, {
           originalError: error,
         });
       }
