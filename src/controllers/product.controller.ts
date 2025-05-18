@@ -30,6 +30,56 @@ export class ProductController {
       next(error);
     }
   };
+
+  /**
+   * Search for products by name
+   * @route GET /api/products/search?name=:name
+   */
+  searchProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name } = req.query;
+
+      if (!name || typeof name !== 'string') {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Name parameter is required and must be a string',
+        });
+        return;
+      }
+
+      logger.info(`ProductController: searchProducts called with name: ${name}`);
+      const products = await this.productService.searchProductsByName(name);
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        count: products.length,
+        data: products,
+      });
+    } catch (error) {
+      logger.error('ProductController: Error in searchProducts', error);
+      next(error);
+    }
+  };
+
+  /**
+   * Get the top 10 products sorted by name
+   * @route GET /api/products/top
+   */
+  getTopProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      logger.info('ProductController: getTopProducts called');
+      const products = await this.productService.getTopTenProducts();
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        count: products.length,
+        data: products,
+      });
+    } catch (error) {
+      logger.error('ProductController: Error in getTopProducts', error);
+      next(error);
+    }
+  };
 }
 
 export default ProductController;

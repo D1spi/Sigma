@@ -58,6 +58,13 @@ export class ProductService {
       const createdProducts = await this.productRepository.createMany(transformedProducts);
       logger.info(`Created ${createdProducts.length} products`);
 
+      // Log some sample data for verification
+      if (createdProducts.length > 0) {
+        const sample = createdProducts[0];
+        logger.info(`Sample product - Name: "${sample.name}", Type: ${sample.type}`);
+        logger.info(`Sample product features: ${sample.features.join(', ')}`);
+      }
+
       return {
         count: createdProducts.length,
         message: `Successfully reset products collection with ${createdProducts.length} items`,
@@ -259,6 +266,39 @@ export class ProductService {
     }
 
     return additionalProducts;
+  }
+
+  /**
+   * Search for products by name (case-insensitive partial match)
+   * @param name The name to search for
+   * @returns Array of products that match the search query
+   */
+  async searchProductsByName(name: string): Promise<IProduct[]> {
+    try {
+      logger.info(`Searching for products with name containing: ${name}`);
+      const products = await this.productRepository.findByName(name);
+      logger.info(`Found ${products.length} products matching query: ${name}`);
+      return products;
+    } catch (error) {
+      logger.error(`Error searching products by name: ${name}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the first 10 products sorted alphabetically by name
+   * @returns Array of the first 10 products sorted by name
+   */
+  async getTopTenProducts(): Promise<IProduct[]> {
+    try {
+      logger.info('Getting top 10 products sorted alphabetically');
+      const products = await this.productRepository.findTopTenSortedByName();
+      logger.info(`Retrieved ${products.length} products`);
+      return products;
+    } catch (error) {
+      logger.error('Error retrieving top 10 products', error);
+      throw error;
+    }
   }
 }
 
