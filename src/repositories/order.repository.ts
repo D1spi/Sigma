@@ -47,12 +47,12 @@ export class OrderRepository extends BaseRepository<IOrderModel> {
         return [];
       }
 
-      return orders.map(order => {
+      return orders.map((order) => {
         const { _id, ...rest } = order;
         return {
           id: _id.toString(),
           ...rest,
-          items: order.items.map(item => {
+          items: order.items.map((item) => {
             const product = item.product as any;
             if (product && product._id) {
               return {

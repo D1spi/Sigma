@@ -39,16 +39,16 @@ export class OrderService {
       if (!cart || !cart.items || cart.items.length === 0) {
         logger.error(`No cart or empty cart found for user ${userId}`);
         throw new ApplicationError('No items in cart to purchase', httpStatus.BAD_REQUEST);
-      }      // Get the selected items from the cart
-      const selectedItems = cart.items.filter(item => item.selected);
+      } // Get the selected items from the cart
+      const selectedItems = cart.items.filter((item) => item.selected);
 
       if (selectedItems.length === 0) {
         logger.error(`No selected items found in cart for user ${userId}`);
         throw new ApplicationError('No selected items to purchase', httpStatus.BAD_REQUEST);
       }
-      
+
       // Get user information for the order
-      const user = await this.userRepository.getById(userId, {}) as IUser;
+      const user = (await this.userRepository.getById(userId, {})) as IUser;
 
       if (!user) {
         logger.error(`User with ID ${userId} not found`);
@@ -57,14 +57,17 @@ export class OrderService {
 
       if (!user.name || !user.lastname || !user.address) {
         logger.error(`User ${userId} is missing required information for order (name, lastname, or address)`);
-        throw new ApplicationError('Missing user information (name, lastname, or address) required for order', httpStatus.BAD_REQUEST);
-      }      // Calculate the total price of the order
+        throw new ApplicationError(
+          'Missing user information (name, lastname, or address) required for order',
+          httpStatus.BAD_REQUEST,
+        );
+      } // Calculate the total price of the order
       let totalPrice = 0;
-      const orderItems = selectedItems.map(item => {
-        const product = item.product as unknown as { 
-          id?: string; 
-          _id?: string | mongoose.Types.ObjectId; 
-          name: string; 
+      const orderItems = selectedItems.map((item) => {
+        const product = item.product as unknown as {
+          id?: string;
+          _id?: string | mongoose.Types.ObjectId;
+          name: string;
           price: number;
         };
         const itemPrice = product.price * item.quantity;
@@ -74,7 +77,7 @@ export class OrderService {
           product: new mongoose.Types.ObjectId(product.id || product._id?.toString() || ''),
           productName: product.name,
           price: product.price,
-          quantity: item.quantity
+          quantity: item.quantity,
         };
       });
 
@@ -100,7 +103,7 @@ export class OrderService {
       logger.error(`Error confirming purchase for user ${userId}:`, error);
       throw error;
     }
-  }  /**
+  } /**
    * Remove selected items from user's cart
    * @param cart User's cart
    * @param userId User ID
@@ -110,17 +113,13 @@ export class OrderService {
       logger.debug(`Removing selected items from cart for user ${userId}`);
 
       // Filter the cart to keep only unselected items
-      const remainingItems = cart.items.filter(item => !item.selected);
-      
+      const remainingItems = cart.items.filter((item) => !item.selected);
+
       // Use CartModel directly to update the cart (imported at the top)
       // We'll need to import it first
       const CartModel = (await import('../models/cart.model')).CartModel;
-      
-      const updatedCart = await CartModel.findOneAndUpdate(
-        { user: userId },
-        { items: remainingItems },
-        { new: true }
-      );
+
+      const updatedCart = await CartModel.findOneAndUpdate({ user: userId }, { items: remainingItems }, { new: true });
 
       if (!updatedCart) {
         logger.warn(`Could not update cart after purchase for user ${userId}`);

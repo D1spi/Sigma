@@ -309,47 +309,41 @@ export class CartRepository extends BaseRepository<ICartModel> {
    * @param selected New selected status for the product
    * @returns The updated cart
    */
-  async updateProductSelectedStatus(
-    userId: string,
-    productId: string,
-    selected: boolean
-  ): Promise<ICart | null> {
+  async updateProductSelectedStatus(userId: string, productId: string, selected: boolean): Promise<ICart | null> {
     try {
       logger.debug(`Updating selected status of product ${productId} to ${selected} for user ${userId}`);
-      
+
       // Find the cart for the user
       const cart = await CartModel.findOne({ user: userId });
-      
+
       if (!cart) {
         logger.warn(`No cart found for user ${userId}`);
         return null;
       }
-      
+
       // Check if the product is in the cart
-      const existingItemIndex = cart.items.findIndex(
-        (item) => item.product.toString() === productId
-      );
-      
+      const existingItemIndex = cart.items.findIndex((item) => item.product.toString() === productId);
+
       if (existingItemIndex === -1) {
         logger.warn(`Product ${productId} not found in cart for user ${userId}`);
         return null;
       }
-      
+
       // Update the selected status
       cart.items[existingItemIndex].selected = selected;
-      
+
       // Save the updated cart
       await cart.save();
       logger.info(`Updated selected status of product ${productId} to ${selected} for user ${userId}`);
-      
+
       // Retrieve the populated cart to return complete product details
       const updatedCart = await CartModel.findOne({ user: userId }).populate('items.product').lean();
-      
+
       if (!updatedCart) {
         logger.error(`Could not find updated cart for user ${userId} after saving`);
         return null;
       }
-      
+
       // Transform _id to id for consistent API responses
       const { _id, ...rest } = updatedCart;
       return {
