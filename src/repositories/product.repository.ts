@@ -92,6 +92,32 @@ export class ProductRepository extends BaseRepository<IProductModel> {
       return { id: _id.toString(), ...rest } as IProduct;
     });
   }
+
+  /**
+   * Find a product by its ID
+   * @param id The ID of the product to find
+   * @returns The product with the specified ID, or null if not found
+   */
+  async findById(id: string): Promise<IProduct | null> {
+    try {
+      logger.debug(`Finding product with ID: ${id}`);
+      const product = await ProductModel.findById(id, { __v: 0 }).lean();
+
+      if (!product) {
+        logger.info(`Product with ID ${id} not found`);
+        return null;
+      }
+
+      logger.info(`Found product: ${product.name} (ID: ${product._id})`);
+
+      // Transform _id to id for consistency with our API
+      const { _id, ...rest } = product;
+      return { id: _id.toString(), ...rest } as IProduct;
+    } catch (error) {
+      logger.error(`Error finding product with ID ${id}:`, error);
+      throw error;
+    }
+  }
 }
 
 export default ProductRepository;

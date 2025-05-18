@@ -80,6 +80,45 @@ export class ProductController {
       next(error);
     }
   };
+
+  /**
+   * Get a product by its ID
+   * @route GET /api/products/:id
+   */
+  getProductById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Product ID is required',
+        });
+        return;
+      }
+
+      logger.info(`ProductController: getProductById called with ID: ${id}`);
+      const product = await this.productService.getProductById(id);
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        data: product,
+      });
+    } catch (error) {
+      logger.error('ProductController: Error in getProductById', error);
+
+      // Check if this is a "not found" error
+      if (error instanceof Error && error.message.includes('not found')) {
+        res.status(httpStatus.NOT_FOUND).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      next(error);
+    }
+  };
 }
 
 export default ProductController;

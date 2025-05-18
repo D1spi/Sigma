@@ -16,6 +16,15 @@ export class ProductService {
   }
 
   /**
+   * Helper function to replace spaces with underscores in strings
+   * @param text Input text
+   * @returns Text with spaces replaced by underscores
+   */
+  private replaceSpacesWithUnderscores(text: string): string {
+    return text.replace(/\s+/g, '_');
+  }
+
+  /**
    * Resets the products collection by fetching data from an external API
    * and transforming it to match our product schema
    */
@@ -32,6 +41,12 @@ export class ProductService {
 
       const externalProducts = response.data.products;
       logger.info(`Fetched ${externalProducts.length} products from external API`);
+
+      // Log a sample of the external products
+      if (externalProducts.length > 0) {
+        const sample: any = externalProducts[0];
+        logger.info(`Sample external product title: "${sample.title}"`);
+      }
       // Transform external products to match our schema
       let transformedProducts = externalProducts.map(this.transformExternalProduct);
 
@@ -63,6 +78,7 @@ export class ProductService {
         const sample = createdProducts[0];
         logger.info(`Sample product - Name: "${sample.name}", Type: ${sample.type}`);
         logger.info(`Sample product features: ${sample.features.join(', ')}`);
+        logger.info(`Notice: All product names have spaces replaced with underscores to improve search functionality`);
       }
 
       return {
@@ -80,7 +96,12 @@ export class ProductService {
    * @param externalProduct Product data from external API
    * @returns Transformed product matching our schema
    */
-  private transformExternalProduct(externalProduct: any): IProduct {
+  private transformExternalProduct(externalProduct: {
+    title?: string;
+    description?: string;
+    images?: string[];
+    rating?: number;
+  }): IProduct {
     // Generate random dimensions suitable for windows
     const width = Math.floor(Math.random() * 100) + 50; // Random width between 50-150cm
     const height = Math.floor(Math.random() * 100) + 80; // Random height between 80-180cm
@@ -94,15 +115,15 @@ export class ProductService {
 
     // Window types
     const windowTypes = [
-      'Casement Window',
-      'Double-Hung Window',
-      'Sliding Window',
-      'Bay Window',
-      'Awning Window',
-      'Picture Window',
-      'Hopper Window',
-      'Skylight Window',
-      'Fixed Window',
+      'Casement_Window',
+      'Double-Hung_Window',
+      'Sliding_Window',
+      'Bay_Window',
+      'Awning_Window',
+      'Picture_Window',
+      'Hopper_Window',
+      'Skylight_Window',
+      'Fixed_Window',
     ];
 
     // Window materials
@@ -132,9 +153,13 @@ export class ProductService {
       }
     }
 
+    // Get the product title from external API and replace spaces with underscores
+    const productName = externalProduct.title || 'Unnamed_Window';
+    const formattedName = this.replaceSpacesWithUnderscores(productName);
+
     // Transform to our product schema
     return {
-      name: externalProduct.title || 'Unnamed Window',
+      name: formattedName,
       description: externalProduct.description || 'No description available',
       type: windowTypes[Math.floor(Math.random() * windowTypes.length)],
       material: windowMaterials[Math.floor(Math.random() * windowMaterials.length)],
@@ -164,18 +189,18 @@ export class ProductService {
 
     // Window names for random generation
     const windowNames = [
-      'Premium Window',
-      'Elegant Window',
-      'Classic Window',
-      'Modern Window',
-      'Designer Window',
-      'Energy-Saving Window',
-      'Luxury Window',
-      'Custom Window',
-      'Standard Window',
-      'Executive Window',
-      'SmartGlass Window',
-      'Ultra-Thin Window',
+      'Premium_Window',
+      'Elegant_Window',
+      'Classic_Window',
+      'Modern_Window',
+      'Designer_Window',
+      'Energy-Saving_Window',
+      'Luxury_Window',
+      'Custom_Window',
+      'Standard_Window',
+      'Executive_Window',
+      'SmartGlass_Window',
+      'Ultra-Thin_Window',
     ];
 
     // Window descriptions for random generation
@@ -208,15 +233,15 @@ export class ProductService {
 
       // Window types
       const windowTypes = [
-        'Casement Window',
-        'Double-Hung Window',
-        'Sliding Window',
-        'Bay Window',
-        'Awning Window',
-        'Picture Window',
-        'Hopper Window',
-        'Skylight Window',
-        'Fixed Window',
+        'Casement_Window',
+        'Double-Hung_Window',
+        'Sliding_Window',
+        'Bay_Window',
+        'Awning_Window',
+        'Picture_Window',
+        'Hopper_Window',
+        'Skylight_Window',
+        'Fixed_Window',
       ];
 
       // Window materials
@@ -297,6 +322,30 @@ export class ProductService {
       return products;
     } catch (error) {
       logger.error('Error retrieving top 10 products', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a product by its ID
+   * @param id The ID of the product to retrieve
+   * @returns The product with the specified ID
+   * @throws Error if the product is not found
+   */
+  async getProductById(id: string): Promise<IProduct> {
+    try {
+      logger.info(`Service: Getting product with ID: ${id}`);
+      const product = await this.productRepository.findById(id);
+
+      if (!product) {
+        logger.error(`Product with ID ${id} not found`);
+        throw new Error(`Product with ID ${id} not found`);
+      }
+
+      logger.info(`Retrieved product: ${product.name}`);
+      return product;
+    } catch (error) {
+      logger.error(`Error retrieving product with ID ${id}:`, error);
       throw error;
     }
   }

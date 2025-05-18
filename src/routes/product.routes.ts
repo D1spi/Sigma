@@ -18,4 +18,8 @@ productRouter.get('/search', productController.searchProducts);
 // Route to get the top 10 products sorted alphabetically by name
 productRouter.get('/top', productController.getTopProducts);
 
+// Route to get a specific product by ID
+// Example: GET /api/v1/products/5f9d5c5b8b8c8c2e6c8b4568
+productRouter.get('/:id', productController.getProductById);
+
 export default productRouter;
