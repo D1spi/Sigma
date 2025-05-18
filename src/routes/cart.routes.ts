@@ -20,4 +20,8 @@ cartRouter.get('/', cartController.getCart);
 // Body: { "quantity": 2 }
 cartRouter.post('/add/:productId', cartController.addToCart);
 
+// Route to remove a product from the cart
+// Example: DELETE /api/v1/cart/remove/5f9d5c5b8b8c8c2e6c8b4568
+cartRouter.delete('/remove/:productId', cartController.removeFromCart);
+
 export default cartRouter;

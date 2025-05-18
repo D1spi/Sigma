@@ -26,15 +26,15 @@ export class CartService {
   async getOrCreateCart(userId: string): Promise<ICart> {
     try {
       logger.info(`CartService: Getting or creating cart for user: ${userId}`);
-      
+
       // Try to find an existing cart
       const existingCart = await this.cartRepository.findByUserId(userId);
-      
+
       if (existingCart) {
         logger.info(`Found existing cart for user: ${userId}`);
         return existingCart;
       }
-      
+
       // If no cart exists, create a new one
       logger.info(`No cart found for user: ${userId}, creating a new one`);
       return await this.cartRepository.createCart(userId);
@@ -92,6 +92,54 @@ export class CartService {
       return updatedCart;
     } catch (error) {
       logger.error(`Error adding product ${productId} to cart for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove a product from the user's cart
+   * @param userId ID of the user
+   * @param productId ID of the product to remove
+   * @returns The updated cart
+   */
+  async removeProductFromCart(userId: string, productId: string): Promise<ICart> {
+    try {
+      logger.info(`CartService: Removing product ${productId} from cart for user ${userId}`);
+
+      // Check if the cart and product exist
+      const cart = await this.cartRepository.findByUserId(userId);
+
+      if (!cart) {
+        logger.error(`Cart not found for user ${userId}`);
+        throw new ApplicationError('Cart not found', httpStatus.NOT_FOUND);
+      }
+
+      // Verify that the product exists in the cart
+      const productInCart = cart.items.some((item) => {
+        const itemProductId =
+          typeof item.product === 'string'
+            ? item.product
+            : (item.product as any).id || (item.product as any)._id?.toString();
+        return itemProductId === productId;
+      });
+
+      if (!productInCart) {
+        logger.error(`Product ${productId} not found in cart for user ${userId}`);
+        throw new ApplicationError('Product not found in cart', httpStatus.NOT_FOUND);
+      }
+
+      // Remove the product from the cart
+      const updatedCart = await this.cartRepository.removeProductFromCart(userId, productId);
+
+      if (!updatedCart) {
+        logger.error(`Failed to update cart for user ${userId}`);
+        throw new ApplicationError('Failed to update cart', httpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      logger.info(`Successfully removed product ${productId} from cart for user ${userId}`);
+      return updatedCart;
+    } catch (error) {
+      logger.error(`Error removing product ${productId} from cart for user ${userId}:`, error);
       throw error;
     }
   }

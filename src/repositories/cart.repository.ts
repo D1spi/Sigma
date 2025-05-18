@@ -166,6 +166,73 @@ export class CartRepository extends BaseRepository<ICartModel> {
       throw error;
     }
   }
+
+  /**
+   * Remove a product from the user's cart
+   * @param userId ID of the user
+   * @param productId ID of the product to remove
+   * @returns The updated cart
+   */
+  async removeProductFromCart(userId: string, productId: string): Promise<ICart | null> {
+    try {
+      logger.debug(`Removing product ${productId} from cart for user ${userId}`);
+
+      // Find the cart for the user
+      const cart = await CartModel.findOne({ user: userId });
+
+      if (!cart) {
+        logger.warn(`No cart found for user ${userId}`);
+        return null;
+      }
+
+      // Check if the product is in the cart
+      const existingItemIndex = cart.items.findIndex((item) => item.product.toString() === productId);
+
+      if (existingItemIndex === -1) {
+        logger.warn(`Product ${productId} not found in cart for user ${userId}`);
+        return null;
+      }
+
+      // Remove the product from the cart
+      cart.items.splice(existingItemIndex, 1);
+
+      // Save the updated cart
+      await cart.save();
+      logger.info(`Removed product ${productId} from cart for user ${userId}`);
+
+      // Retrieve the populated cart to return complete product details
+      const updatedCart = await CartModel.findOne({ user: userId }).populate('items.product').lean();
+
+      if (!updatedCart) {
+        logger.error(`Could not find updated cart for user ${userId} after saving`);
+        return null;
+      }
+
+      // Transform _id to id for consistent API responses
+      const { _id, ...rest } = updatedCart;
+      return {
+        id: _id.toString(),
+        ...rest,
+        items: updatedCart.items.map((item) => {
+          const product = item.product as any;
+          if (product && product._id) {
+            return {
+              ...item,
+              product: {
+                id: product._id.toString(),
+                ...(product as any),
+                _id: undefined,
+              },
+            };
+          }
+          return item;
+        }),
+      } as unknown as ICart;
+    } catch (error) {
+      logger.error(`Error removing product ${productId} from cart for user ${userId}:`, error);
+      throw error;
+    }
+  }
 }
 
 export default CartRepository;
