@@ -7,6 +7,7 @@ import { userRouter } from './user.routes';
 import { authRouter } from './auth.routes';
 import productRouter from './product.routes';
 import cartRouter from './cart.routes';
+import orderRouter from './order.routes';
 
 export const baseRouter = Router();
 
@@ -16,5 +17,6 @@ baseRouter.use('/users', userRouter);
 baseRouter.use('/auth', authRouter);
 baseRouter.use('/products', productRouter);
 baseRouter.use('/cart', cartRouter);
+baseRouter.use('/orders', orderRouter);
 
 baseRouter.use(errorMiddleware);
