@@ -12,6 +12,9 @@ export const cartRouter = Router();
 // All cart routes require authentication
 cartRouter.use(authMiddleware);
 
+// Route to get the current user's cart
+cartRouter.get('/', cartController.getCart);
+
 // Route to add a product to the cart
 // Example: POST /api/v1/cart/add/5f9d5c5b8b8c8c2e6c8b4568
 // Body: { "quantity": 2 }

@@ -14,7 +14,35 @@ export class CartController {
   constructor() {
     this.cartService = new CartService();
   }
-  // Método getCart temporalmente eliminado para simplificar
+
+  /**
+   * Get the current user's cart
+   * @route GET /api/cart
+   */
+  getCart = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        res.status(httpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
+      logger.info(`CartController: getCart called for user: ${userId}`);
+      const cart = await this.cartService.getOrCreateCart(userId);
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        data: cart,
+      });
+    } catch (error) {
+      logger.error('CartController: Error in getCart', error);
+      next(error);
+    }
+  };
 
   /**
    * Add a product to the user's cart
