@@ -20,7 +20,15 @@ cartRouter.get('/', cartController.getCart);
 // Body: { "quantity": 2 }
 cartRouter.post('/add/:productId', cartController.addToCart);
 
+// Route to update quantity of a product in the cart
+// Example: PATCH /api/v1/cart/update/5f9d5c5b8b8c8c2e6c8b4568
+// Body: { "quantity": 3 }
 cartRouter.patch('/update/:productId', cartController.updateQuantity);
+
+// Route to toggle product selection in the cart
+// Example: PATCH /api/v1/cart/select/5f9d5c5b8b8c8c2e6c8b4568
+// Body: { "selected": true }
+cartRouter.patch('/select/:productId', cartController.toggleProductSelection);
 
 // Route to remove a product from the cart
 // Example: DELETE /api/v1/cart/remove/5f9d5c5b8b8c8c2e6c8b4568

@@ -213,6 +213,68 @@ export class CartController {
       next(error);
     }
   };
+
+  /**
+   * Update the selected status of a product in the user's cart
+   * @route PATCH /api/cart/select/:productId
+   */
+  toggleProductSelection = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.id;
+      const { productId } = req.params;
+      const { selected } = req.body;
+
+      if (!userId) {
+        res.status(httpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
+      if (!productId) {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Product ID is required',
+        });
+        return;
+      }
+
+      if (selected === undefined || selected === null) {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Selected status is required',
+        });
+        return;
+      }
+
+      // Ensure selected is a boolean
+      const isSelected = Boolean(selected);
+
+      logger.info(
+        `CartController: toggleProductSelection called for user: ${userId}, product: ${productId}, selected: ${isSelected}`,
+      );
+      const updatedCart = await this.cartService.updateProductSelectedStatus(userId, productId, isSelected);
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        message: `Product ${isSelected ? 'selected' : 'deselected'} successfully`,
+        data: updatedCart,
+      });
+    } catch (error) {
+      logger.error('CartController: Error in toggleProductSelection', error);
+
+      if (error instanceof ApplicationError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      next(error);
+    }
+  };
 }
 
 export default CartController;
