@@ -47,11 +47,11 @@ export class AuthService {
       logger.warn(`AuthService: Invalid password for email: ${email}`);
       throw new AppError('Invalid password', httpStatus.UNAUTHORIZED);
     }
-    
+
     // Generamos los dos tokens
     const authToken = TokenHelper.generateAuthToken({ id: user.id });
     const refreshToken = TokenHelper.generateRefreshToken({ id: user.id });
-    
+
     // Guardamos los tokens en la base de datos
     const updateProjection = { ...this.defaultProjection, authToken: true, refreshToken: true, tokensValid: true };
     const updateData = {
@@ -61,48 +61,44 @@ export class AuthService {
       name: user.name,
       lastname: user.lastname,
       email: user.email,
-      password: user.password
+      password: user.password,
     } as IUser;
-    
-    await this.userRepository.update(user.id, updateData, updateProjection);
-    
+
+    await this.userRepository.update(user.id!, updateData, updateProjection);
+
     logger.info(`AuthService: Login successful for email: ${email}`);
-    return { 
-      ...user, 
+    return {
+      ...user,
       authToken,
-      refreshToken
+      refreshToken,
     };
   };
 
   logout = async (userId: string): Promise<void> => {
     logger.debug(`AuthService: Logging out user with id ${userId}`);
-    
+
     // Verificamos que el usuario existe
     const projection = { ...this.defaultProjection };
     const user = await this.userRepository.getById(userId, projection);
-    
+
     if (!user) {
       logger.warn(`AuthService: User not found for id: ${userId}`);
       throw new AppError('User not found', httpStatus.NOT_FOUND);
     }
-    
+
     // Creamos un objeto parcial para actualizar solo el campo tokensValid
     const updateData = {
       tokensValid: false,
-      name: user.name,       // Mantenemos los campos obligatorios del modelo
+      name: user.name, // Mantenemos los campos obligatorios del modelo
       lastname: user.lastname,
       email: user.email,
-      password: user.password
+      password: user.password,
     } as IUser;
-    
+
     // Marcamos los tokens como inválidos pero no los borramos
     const updateProjection = { ...this.defaultProjection, tokensValid: true };
-    await this.userRepository.update(
-      userId,
-      updateData,
-      updateProjection
-    );
-    
+    await this.userRepository.update(userId, updateData, updateProjection);
+
     logger.info(`AuthService: User ${userId} logged out successfully`);
   };
 }

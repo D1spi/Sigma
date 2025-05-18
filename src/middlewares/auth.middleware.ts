@@ -26,3 +26,6 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
     next(new AppError('Invalid token.', httpStatus.UNAUTHORIZED));
   }
 };
+
+// Alias for checkToken to maintain consistency
+export const authMiddleware = checkToken;

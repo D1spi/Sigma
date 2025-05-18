@@ -28,7 +28,7 @@ export class AuthController {
       const response = {
         message: 'Login successful',
         authToken: user.authToken,
-        refreshToken: user.refreshToken
+        refreshToken: user.refreshToken,
       };
       res.send(response);
     } catch (error) {

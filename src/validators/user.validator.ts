@@ -44,6 +44,15 @@ export class UserValidator {
 
   static readonly userIdSchema = Joi.object({ id: UserValidator.id.required() });
 
+  static readonly userUpdateSchema = Joi.object({
+    name: UserValidator.name.optional(),
+    lastname: UserValidator.lastname.optional(),
+    email: UserValidator.email.optional(),
+    address: UserValidator.address,
+    birthday: UserValidator.birthday,
+    isBlocked: UserValidator.isBlocked,
+  });
+
   static readonly userPaginationSchema = Joi.object({
     skip: UserValidator.skip,
     limit: UserValidator.limit,
@@ -56,5 +65,7 @@ export class UserValidator {
     password: UserValidator.password,
     confirmPassword: UserValidator.confirmPassword,
     address: UserValidator.address,
+    birthday: UserValidator.birthday,
+    isBlocked: UserValidator.isBlocked,
   });
 }
