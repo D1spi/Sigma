@@ -144,6 +144,75 @@ export class CartController {
       next(error);
     }
   };
+
+  /**
+   * Update the quantity of a product in the user's cart
+   * @route PUT /api/cart/update/:productId
+   */
+  updateQuantity = async (req: IAuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.id;
+      const { productId } = req.params;
+      const { quantity } = req.body;
+
+      if (!userId) {
+        res.status(httpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
+      if (!productId) {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Product ID is required',
+        });
+        return;
+      }
+
+      if (quantity === undefined || quantity === null) {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Quantity is required',
+        });
+        return;
+      }
+
+      // Ensure quantity is a number
+      const quantityNum = Number(quantity);
+      if (isNaN(quantityNum) || quantityNum <= 0) {
+        res.status(httpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Quantity must be a positive number',
+        });
+        return;
+      }
+
+      logger.info(
+        `CartController: updateQuantity called for user: ${userId}, product: ${productId}, quantity: ${quantityNum}`,
+      );
+      const updatedCart = await this.cartService.updateProductQuantity(userId, productId, quantityNum);
+
+      res.status(httpStatus.OK).json({
+        success: true,
+        message: 'Product quantity updated successfully',
+        data: updatedCart,
+      });
+    } catch (error) {
+      logger.error('CartController: Error in updateQuantity', error);
+
+      if (error instanceof ApplicationError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      next(error);
+    }
+  };
 }
 
 export default CartController;

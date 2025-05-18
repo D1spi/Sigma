@@ -143,6 +143,80 @@ export class CartService {
       throw error;
     }
   }
+
+  /**
+   * Update the quantity of a product in the user's cart
+   * @param userId ID of the user
+   * @param productId ID of the product to update
+   * @param quantity New quantity for the product
+   * @returns The updated cart
+   */
+  async updateProductQuantity(userId: string, productId: string, quantity: number): Promise<ICart> {
+    try {
+      logger.info(`CartService: Updating quantity of product ${productId} to ${quantity} for user ${userId}`);
+
+      // Verify that the product exists
+      const product = await this.productRepository.findById(productId);
+
+      if (!product) {
+        logger.error(`Product with ID ${productId} not found`);
+        throw new ApplicationError(`Product with ID ${productId} not found`, httpStatus.NOT_FOUND);
+      }
+
+      // Check that the quantity is valid
+      if (quantity <= 0) {
+        logger.error(`Invalid quantity: ${quantity}. Quantity must be greater than 0.`);
+        throw new ApplicationError('Quantity must be greater than 0', httpStatus.BAD_REQUEST);
+      }
+
+      // Check if the product has enough stock
+      if (product.stockQuantity < quantity) {
+        logger.error(
+          `Not enough stock for product ${productId}. Requested: ${quantity}, Available: ${product.stockQuantity}`,
+        );
+        throw new ApplicationError(
+          `Not enough stock available. Only ${product.stockQuantity} units available.`,
+          httpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Check if the cart and product exist
+      const cart = await this.cartRepository.findByUserId(userId);
+
+      if (!cart) {
+        logger.error(`Cart not found for user ${userId}`);
+        throw new ApplicationError('Cart not found', httpStatus.NOT_FOUND);
+      }
+
+      // Verify that the product exists in the cart
+      const productInCart = cart.items.some((item) => {
+        const itemProductId =
+          typeof item.product === 'string'
+            ? item.product
+            : (item.product as any).id || (item.product as any)._id?.toString();
+        return itemProductId === productId;
+      });
+
+      if (!productInCart) {
+        logger.error(`Product ${productId} not found in cart for user ${userId}`);
+        throw new ApplicationError('Product not found in cart', httpStatus.NOT_FOUND);
+      }
+
+      // Update the quantity
+      const updatedCart = await this.cartRepository.updateProductQuantity(userId, productId, quantity);
+
+      if (!updatedCart) {
+        logger.error(`Failed to update cart for user ${userId}`);
+        throw new ApplicationError('Failed to update cart', httpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      logger.info(`Successfully updated quantity of product ${productId} to ${quantity} for user ${userId}`);
+      return updatedCart;
+    } catch (error) {
+      logger.error(`Error updating quantity for product ${productId} in cart for user ${userId}:`, error);
+      throw error;
+    }
+  }
 }
 
 export default CartService;
