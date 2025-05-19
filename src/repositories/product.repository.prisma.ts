@@ -3,7 +3,7 @@ import { IProduct, ProductModel } from '../models/product.model';
 
 export class ProductRepositoryPrisma {
   private prisma: PrismaClient;
-  
+
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
