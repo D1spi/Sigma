@@ -6,7 +6,7 @@ import { NextFunction, type Request, type Response } from 'express';
 import { httpStatus } from '../config/httpStatusCodes';
 import logger from '../config/logger';
 import { UserService } from '../services/user.service';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
 
 export class UserController {
   private readonly userService: UserService;
@@ -27,8 +27,8 @@ export class UserController {
       res.send(response);
     } catch (error) {
       logger.debug({ id: req.params.id }, 'Controller: Error fetching user by id');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Error fetching user by id', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Error fetching user by id', httpStatus.INTERNAL_SERVER_ERROR, {
           id: req.params.id,
           originalError: error,
         });
@@ -54,8 +54,8 @@ export class UserController {
       res.send(response);
     } catch (error) {
       logger.debug('Controller: Error fetching users');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Error fetching users', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Error fetching users', httpStatus.INTERNAL_SERVER_ERROR, {
           originalError: error,
         });
       }
@@ -74,8 +74,8 @@ export class UserController {
       res.status(httpStatus.CREATED).send(response);
     } catch (error) {
       logger.debug({ body: req.body }, 'Controller: Error creating user');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Error creating user', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Error creating user', httpStatus.INTERNAL_SERVER_ERROR, {
           body: req.body,
           originalError: error,
         });
@@ -96,8 +96,8 @@ export class UserController {
       res.send(response);
     } catch (error) {
       logger.debug({ id: req.params.id, body: req.body }, 'Controller: Error updating user');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Error updating user', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Error updating user', httpStatus.INTERNAL_SERVER_ERROR, {
           id: req.params.id,
           body: req.body,
           originalError: error,
@@ -119,8 +119,8 @@ export class UserController {
       res.send(response);
     } catch (error) {
       logger.debug({ id: req.params.id }, 'Controller: Error deleting user');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Error deleting user', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Error deleting user', httpStatus.INTERNAL_SERVER_ERROR, {
           id: req.params.id,
           originalError: error,
         });

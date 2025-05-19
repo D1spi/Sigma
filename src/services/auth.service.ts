@@ -3,7 +3,9 @@
 
 import { httpStatus } from '../config/httpStatusCodes';
 import logger from '../config/logger';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
+// Alias for backward compatibility
+import { ApplicationError as AppError } from '../utils/application.error';
 import { UserRepository } from '../repositories/user.repository';
 // For PostgreSQL with Prisma uncomment the following line and comment the previous one
 // import { UserRepository } from '../repositories/user.repository.prisma';
@@ -36,16 +38,16 @@ export class AuthService {
     const user = await this.userRepository.getByEmail(email, projection);
     if (!user) {
       logger.warn(`AuthService: User not found for email: ${email}`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
     }
     if (user.isBlocked) {
       logger.warn(`AuthService: User with email ${email} is blocked`);
-      throw new AppError('User is blocked', httpStatus.FORBIDDEN);
+      throw new ApplicationError('User is blocked', httpStatus.FORBIDDEN);
     }
     const isPasswordValid = await PasswordHelper.comparePasswords(password, user.password);
     if (!isPasswordValid) {
       logger.warn(`AuthService: Invalid password for email: ${email}`);
-      throw new AppError('Invalid password', httpStatus.UNAUTHORIZED);
+      throw new ApplicationError('Invalid password', httpStatus.UNAUTHORIZED);
     }
 
     // Generamos los dos tokens
@@ -83,7 +85,7 @@ export class AuthService {
 
     if (!user) {
       logger.warn(`AuthService: User not found for id: ${userId}`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
     }
 
     // Creamos un objeto parcial para actualizar solo el campo tokensValid

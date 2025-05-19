@@ -7,7 +7,7 @@ import { httpStatus } from '../config/httpStatusCodes';
 import logger from '../config/logger';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
 
 export class AuthController {
   private readonly userService: UserService;
@@ -33,8 +33,8 @@ export class AuthController {
       res.send(response);
     } catch (error) {
       logger.debug({ email: req.body.email }, 'Controller: Error during login');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Login failed', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Login failed', httpStatus.INTERNAL_SERVER_ERROR, {
           email: req.body.email,
           originalError: error,
         });
@@ -57,8 +57,8 @@ export class AuthController {
       res.status(httpStatus.CREATED).send(response);
     } catch (error) {
       logger.debug({ email: req.body.email, body: req.body }, 'Controller: Error during registration');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Registration failed', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Registration failed', httpStatus.INTERNAL_SERVER_ERROR, {
           email: req.body.email,
           originalError: error,
         });
@@ -74,7 +74,7 @@ export class AuthController {
 
       if (!userId) {
         logger.warn('Controller: No user ID provided for logout');
-        throw new AppError('User ID is required', httpStatus.BAD_REQUEST);
+        throw new ApplicationError('User ID is required', httpStatus.BAD_REQUEST);
       }
 
       await this.authService.logout(userId);
@@ -82,8 +82,8 @@ export class AuthController {
       res.json({ message: 'Logout successful' });
     } catch (error) {
       logger.debug('Controller: Error during logout');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Logout failed', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Logout failed', httpStatus.INTERNAL_SERVER_ERROR, {
           originalError: error,
         });
       }

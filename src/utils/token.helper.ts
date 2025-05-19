@@ -5,7 +5,7 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { SECRET_KEY } from '../config/config';
 import { httpStatus } from '../config/httpStatusCodes';
-import { AppError } from './application.error';
+import { ApplicationError } from './application.error';
 import logger from '../config/logger';
 
 export class TokenHelper {
@@ -15,7 +15,7 @@ export class TokenHelper {
     const options: jwt.SignOptions = { expiresIn };
     if (!SECRET_KEY) {
       logger.error('TokenHelper: SECRET_KEY is not defined');
-      throw new AppError('SECRET_KEY is not defined', httpStatus.INTERNAL_SERVER_ERROR);
+      throw new ApplicationError('SECRET_KEY is not defined', httpStatus.INTERNAL_SERVER_ERROR);
     }
 
     const token = jwt.sign(payload, SECRET_KEY, options);
@@ -38,7 +38,7 @@ export class TokenHelper {
 
     if (!SECRET_KEY) {
       logger.error('TokenHelper: SECRET_KEY is not defined');
-      throw new AppError('SECRET_KEY is not defined', httpStatus.INTERNAL_SERVER_ERROR);
+      throw new ApplicationError('SECRET_KEY is not defined', httpStatus.INTERNAL_SERVER_ERROR);
     }
 
     try {
@@ -47,7 +47,7 @@ export class TokenHelper {
       return decoded;
     } catch (error) {
       logger.error({ error: error.message }, 'TokenHelper: Token verification failed');
-      throw new AppError('Invalid token', httpStatus.UNAUTHORIZED);
+      throw new ApplicationError('Invalid token', httpStatus.UNAUTHORIZED);
     }
   };
 }

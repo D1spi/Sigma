@@ -3,7 +3,7 @@
 
 import { httpStatus } from '../config/httpStatusCodes';
 import logger from '../config/logger';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
 import { UserRepository } from '../repositories/user.repository';
 // For PostgreSQL with Prisma uncomment the following line and comment the previous one
 // import { UserRepository } from '../repositories/user.repository.prisma';
@@ -78,7 +78,7 @@ export class UserService {
     const isValid = passwordRegex.test(password);
     if (!isValid) {
       logger.warn('Password validation failed. Provided password does not meet the required complexity.');
-      throw new AppError(
+      throw new ApplicationError(
         'La contraseña debe tener al menos 5 caracteres, una mayúscula y una minúscula',
         httpStatus.BAD_REQUEST,
       );
@@ -92,11 +92,11 @@ export class UserService {
     const user = await this.userRepository.getById(id, projection);
     if (!user) {
       logger.warn(`User with id ${id} not found`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
     }
     if (user.isBlocked) {
       logger.warn(`User with id ${id} is blocked`);
-      throw new AppError('User is blocked', httpStatus.FORBIDDEN);
+      throw new ApplicationError('User is blocked', httpStatus.FORBIDDEN);
     }
     logger.info(`User with id ${id} retrieved successfully`);
     return user;
@@ -121,7 +121,7 @@ export class UserService {
     const existingUser = await this.userRepository.getByEmail(normalizedData.email, this.defaultProjection);
     if (existingUser) {
       logger.warn(`User with email ${normalizedData.email} already exists`);
-      throw new AppError('Ya existe un usuario con este email', httpStatus.CONFLICT);
+      throw new ApplicationError('Ya existe un usuario con este email', httpStatus.CONFLICT);
     }
 
     // Validar contraseña
@@ -140,7 +140,7 @@ export class UserService {
 
     if (!createdUser) {
       logger.warn('User creation failed');
-      throw new AppError('Error al crear el usuario', httpStatus.INTERNAL_SERVER_ERROR);
+      throw new ApplicationError('Error al crear el usuario', httpStatus.INTERNAL_SERVER_ERROR);
     }
 
     logger.info(`User created successfully with email ${normalizedData.email}`);
@@ -152,11 +152,11 @@ export class UserService {
     const userToUpdate = await this.userRepository.getById(id, this.defaultProjection);
     if (!userToUpdate) {
       logger.warn(`User with id ${id} not found for update`);
-      throw new AppError('Usuario no encontrado', httpStatus.NOT_FOUND);
+      throw new ApplicationError('Usuario no encontrado', httpStatus.NOT_FOUND);
     }
     if (userToUpdate.isBlocked) {
       logger.warn(`User with id ${id} is blocked and cannot be updated`);
-      throw new AppError('Usuario bloqueado', httpStatus.FORBIDDEN);
+      throw new ApplicationError('Usuario bloqueado', httpStatus.FORBIDDEN);
     }
 
     const normalizedData = this.normalizeUserData(data);
@@ -166,7 +166,7 @@ export class UserService {
       const existingUser = await this.userRepository.getByEmail(normalizedData.email, this.defaultProjection);
       if (existingUser?.id && existingUser?.id.toString() !== id) {
         logger.warn(`Another user with email ${normalizedData.email} already exists`);
-        throw new AppError('Ya existe un usuario con este email', httpStatus.CONFLICT);
+        throw new ApplicationError('Ya existe un usuario con este email', httpStatus.CONFLICT);
       }
     }
 
@@ -180,7 +180,7 @@ export class UserService {
     const userUpdated = await this.userRepository.update(id, normalizedData, projection);
     if (!userUpdated) {
       logger.warn(`User with id ${id} not found after update attempt`);
-      throw new AppError('Usuario no encontrado', httpStatus.NOT_FOUND);
+      throw new ApplicationError('Usuario no encontrado', httpStatus.NOT_FOUND);
     }
     logger.info(`User with id ${id} updated successfully`);
     return userUpdated;
@@ -192,7 +192,7 @@ export class UserService {
     const userDeleted = await this.userRepository.delete(id, projection);
     if (!userDeleted) {
       logger.warn(`User with id ${id} not found for deletion`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
     }
     logger.info(`User with id ${id} deleted successfully`);
     return userDeleted;

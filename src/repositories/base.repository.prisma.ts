@@ -9,7 +9,7 @@ export interface IRepositoryDelegate<T> {
   delete: (args: unknown) => Promise<T>;
 }
 
-export class BaseRepository<T, CreateInput, Delegate extends IRepositoryDelegate<T>> {
+export class BaseRepositoryPrisma<T, CreateInput, Delegate extends IRepositoryDelegate<T>> {
   private readonly delegate;
 
   constructor(delegate: Delegate) {

@@ -1,10 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { BaseRepositoryPrisma } from './base.repository.prisma';
 import { IProduct, ProductModel } from '../models/product.model';
 
-export class ProductRepositoryPrisma extends BaseRepositoryPrisma<IProduct> {
+export class ProductRepositoryPrisma {
+  private prisma: PrismaClient;
+
   constructor(prisma: PrismaClient) {
-    super(prisma, 'product');
+    this.prisma = prisma;
   }
 
   async deleteAll(): Promise<void> {
