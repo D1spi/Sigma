@@ -7,7 +7,7 @@ import { httpStatus } from '../config/httpStatusCodes';
 import logger from '../config/logger';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
 
 export class AuthController {
   private readonly userService: UserService;
@@ -31,8 +31,8 @@ export class AuthController {
       res.send(response);
     } catch (error) {
       logger.debug({ email: req.body.email }, 'Controller: Error during login');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Login failed', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Login failed', httpStatus.INTERNAL_SERVER_ERROR, {
           email: req.body.email,
           originalError: error,
         });
@@ -55,8 +55,8 @@ export class AuthController {
       res.status(httpStatus.CREATED).send(response);
     } catch (error) {
       logger.debug({ email: req.body.email, body: req.body }, 'Controller: Error during registration');
-      if (!(error instanceof AppError)) {
-        error = new AppError('Registration failed', httpStatus.INTERNAL_SERVER_ERROR, {
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Registration failed', httpStatus.INTERNAL_SERVER_ERROR, {
           email: req.body.email,
           originalError: error,
         });
@@ -64,4 +64,31 @@ export class AuthController {
       next(error);
     }
   };
+<<<<<<< Updated upstream
+=======
+
+  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    logger.debug('Controller: Received logout request');
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        logger.warn('Controller: No user ID provided for logout');
+        throw new ApplicationError('User ID is required', httpStatus.BAD_REQUEST);
+      }
+
+      await this.authService.logout(userId);
+
+      res.json({ message: 'Logout successful' });
+    } catch (error) {
+      logger.debug('Controller: Error during logout');
+      if (!(error instanceof ApplicationError)) {
+        error = new ApplicationError('Logout failed', httpStatus.INTERNAL_SERVER_ERROR, {
+          originalError: error,
+        });
+      }
+      next(error);
+    }
+  };
+>>>>>>> Stashed changes
 }

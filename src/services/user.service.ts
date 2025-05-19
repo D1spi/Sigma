@@ -3,7 +3,9 @@
 
 import { httpStatus } from '../config/httpStatusCodes';
 import logger from '../config/logger';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
+// Alias for backward compatibility if any AppError references remain
+import { ApplicationError as AppError } from '../utils/application.error';
 import { UserRepository } from '../repositories/user.repository';
 // For PostgreSQL with Prisma uncomment the following line and comment the previous one
 // import { UserRepository } from '../repositories/user.repository.prisma';
@@ -65,8 +67,13 @@ export class UserService {
     const isValid = passwordRegex.test(password);
     if (!isValid) {
       logger.warn('Password validation failed. Provided password does not meet the required complexity.');
+<<<<<<< Updated upstream
       throw new AppError(
         'Password must be between 5 to 30 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+=======
+      throw new ApplicationError(
+        'La contraseña debe tener al menos 5 caracteres, una mayúscula y una minúscula',
+>>>>>>> Stashed changes
         httpStatus.BAD_REQUEST,
       );
     }
@@ -79,11 +86,11 @@ export class UserService {
     const user = await this.userRepository.getById(id, projection);
     if (!user) {
       logger.warn(`User with id ${id} not found`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
     }
     if (user.isBlocked) {
       logger.warn(`User with id ${id} is blocked`);
-      throw new AppError('User is blocked', httpStatus.FORBIDDEN);
+      throw new ApplicationError('User is blocked', httpStatus.FORBIDDEN);
     }
     logger.info(`User with id ${id} retrieved successfully`);
     return user;
@@ -108,11 +115,15 @@ export class UserService {
     const existingUser = await this.userRepository.getByEmail(normalizedData.email, this.defaultProjection);
     if (existingUser) {
       logger.warn(`User with email ${normalizedData.email} already exists`);
+<<<<<<< Updated upstream
       throw new AppError('A user with this email already exists', httpStatus.CONFLICT);
     }
     if (this.getAge(normalizedData.birthday) < 18) {
       logger.warn('User is under 18 years old', { birthday: normalizedData.birthday });
       throw new AppError('User must be at least 18 years old', httpStatus.BAD_REQUEST);
+=======
+      throw new ApplicationError('Ya existe un usuario con este email', httpStatus.CONFLICT);
+>>>>>>> Stashed changes
     }
     this.validatePassword(normalizedData.password);
     normalizedData.password = await PasswordHelper.hashPassword(normalizedData.password);
@@ -120,7 +131,11 @@ export class UserService {
     const createdUser = await this.userRepository.create(normalizedData, projection);
     if (!createdUser) {
       logger.warn('User creation failed');
+<<<<<<< Updated upstream
       throw new AppError('User creation failed', httpStatus.INTERNAL_SERVER_ERROR);
+=======
+      throw new ApplicationError('Error al crear el usuario', httpStatus.INTERNAL_SERVER_ERROR);
+>>>>>>> Stashed changes
     }
     logger.info(`User created successfully with email ${normalizedData.email}`);
     return createdUser;
@@ -131,11 +146,19 @@ export class UserService {
     const userToUpdate = await this.userRepository.getById(id, this.defaultProjection);
     if (!userToUpdate) {
       logger.warn(`User with id ${id} not found for update`);
+<<<<<<< Updated upstream
       throw new AppError('User not found', httpStatus.NOT_FOUND);
     }
     if (userToUpdate.isBlocked) {
       logger.warn(`User with id ${id} is blocked and cannot be updated`);
       throw new AppError('User is blocked', httpStatus.FORBIDDEN);
+=======
+      throw new ApplicationError('Usuario no encontrado', httpStatus.NOT_FOUND);
+    }
+    if (userToUpdate.isBlocked) {
+      logger.warn(`User with id ${id} is blocked and cannot be updated`);
+      throw new ApplicationError('Usuario bloqueado', httpStatus.FORBIDDEN);
+>>>>>>> Stashed changes
     }
 
     const normalizedData = this.normalizeUserData(data);
@@ -147,7 +170,11 @@ export class UserService {
       const existingUser = await this.userRepository.getByEmail(normalizedData.email, this.defaultProjection);
       if (existingUser?.id && existingUser?.id.toString() !== id) {
         logger.warn(`Another user with email ${normalizedData.email} already exists`);
+<<<<<<< Updated upstream
         throw new AppError('A user with this email already exists', httpStatus.CONFLICT);
+=======
+        throw new ApplicationError('Ya existe un usuario con este email', httpStatus.CONFLICT);
+>>>>>>> Stashed changes
       }
     }
     if (normalizedData.password) {
@@ -158,7 +185,11 @@ export class UserService {
     const userUpdated = await this.userRepository.update(id, normalizedData, projection);
     if (!userUpdated) {
       logger.warn(`User with id ${id} not found after update attempt`);
+<<<<<<< Updated upstream
       throw new AppError('User not found', httpStatus.NOT_FOUND);
+=======
+      throw new ApplicationError('Usuario no encontrado', httpStatus.NOT_FOUND);
+>>>>>>> Stashed changes
     }
     logger.info(`User with id ${id} updated successfully`);
     return userUpdated;
@@ -170,7 +201,7 @@ export class UserService {
     const userDeleted = await this.userRepository.delete(id, projection);
     if (!userDeleted) {
       logger.warn(`User with id ${id} not found for deletion`);
-      throw new AppError('User not found', httpStatus.NOT_FOUND);
+      throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
     }
     logger.info(`User with id ${id} deleted successfully`);
     return userDeleted;

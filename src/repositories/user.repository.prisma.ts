@@ -3,7 +3,7 @@
 
 import { Prisma, PrismaClient, User } from '@prisma/client';
 import { BaseRepository, IRepositoryDelegate } from './base.repository.prisma';
-import { AppError } from '../utils/application.error';
+import { ApplicationError } from '../utils/application.error';
 import { IUser } from '../interfaces/user.interface';
 
 const prisma = new PrismaClient();
@@ -19,14 +19,29 @@ export class UserRepository {
     if (!user) {
       return null;
     }
-    const { id, ...rest } = user;
-    return { ...rest, id: id.toString() };
+    const { id, name, email, password, birthday, isBlocked, createdAt, updatedAt } = user;
+    // Construir objeto IUser: Prisma User no incluye lastname ni address ni tokens
+    return {
+      id: id.toString(),
+      name: name,
+      lastname: '', // Valor por defecto, no existe en el modelo
+      email: email,
+      password: password,
+      address: undefined,
+      birthday: birthday,
+      isBlocked: isBlocked,
+      authToken: undefined,
+      refreshToken: undefined,
+      tokensValid: undefined,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    };
   };
 
   getById = async (id: string, projection: Record<string, boolean>): Promise<IUser | null> => {
     const idNumber = parseInt(id);
     if (isNaN(idNumber)) {
-      throw new AppError('Invalid ID', 400);
+      throw new ApplicationError('Invalid ID', 400);
     }
     return this.transformId(await this.baseRepository.getById(idNumber, projection));
   };
@@ -55,7 +70,7 @@ export class UserRepository {
   update = async (id: string, data: IUser, projection: Record<string, boolean>): Promise<IUser | null> => {
     const idNumber = parseInt(id);
     if (isNaN(idNumber)) {
-      throw new AppError('Invalid ID', 400);
+      throw new ApplicationError('Invalid ID', 400);
     }
     data.updatedAt = new Date();
     return this.transformId(await this.baseRepository.update(idNumber, data as unknown as User, projection));
@@ -64,7 +79,7 @@ export class UserRepository {
   delete = async (id: string, projection: Record<string, boolean>): Promise<IUser | null> => {
     const idNumber = parseInt(id);
     if (isNaN(idNumber)) {
-      throw new AppError('Invalid ID', 400);
+      throw new ApplicationError('Invalid ID', 400);
     }
     return this.transformId(await this.baseRepository.delete(idNumber, projection));
   };
