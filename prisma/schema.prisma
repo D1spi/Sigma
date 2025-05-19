@@ -9,17 +9,17 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String    @db.VarChar(255)
-  email     String    @unique @db.VarChar(255)
-  password  String    @db.VarChar(255)
-  birthday  DateTime  @db.Date
-  isBlocked Boolean   @default(false) @db.Boolean
-  createdAt DateTime  @default(now()) @db.Timestamptz
-  updatedAt DateTime  @default(now()) @db.Timestamptz
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String    @unique
+  password  String
+  birthday  DateTime
+  isBlocked Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 }

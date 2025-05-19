@@ -4,7 +4,6 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-<<<<<<< HEAD
 pnpm-debug.log*
 lerna-debug.log*
 
@@ -28,7 +27,6 @@ dist-ssr
 # You should ignore .env and .env.* files if you check your code into a repository with multiple contributors and you have confidential information in that file
 .env
 # .env.*
-=======
 lerna-debug.log*
 .pnpm-debug.log*
 
@@ -159,4 +157,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
->>>>>>> d3ca0d5557b057966047a19d0d298c89ae5354fd
+
