@@ -4,6 +4,7 @@
 import { app } from './app.js';
 import { PORT } from './config/config.js';
 import logger from './config/logger.js';
+import 'dotenv/config.js';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'

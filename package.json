@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch --env-file=.env ./src/server.ts",
-    "start": "node --env-file=.env ./dist/src/server.js",
+    "start": "node -r dotenv/config ./dist/src/server.js",
     "start:local": "node --env-file=.env ./dist/src/server.js",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
@@ -33,6 +33,7 @@
     "axios": "^1.9.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
