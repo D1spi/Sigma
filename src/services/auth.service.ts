@@ -10,6 +10,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { PasswordHelper } from '../utils/password.helper';
 import { TokenHelper } from '../utils/token.helper';
 import { AuthUserDto } from '../interfaces/authUser.interface';
+import { IUser } from '../interfaces/user.interface';
 
 export class AuthService {
   private readonly userRepository: UserRepository;
@@ -46,11 +47,32 @@ export class AuthService {
       logger.warn(`AuthService: Invalid password for email: ${email}`);
       throw new ApplicationError('Invalid password', httpStatus.UNAUTHORIZED);
     }
-    const token = TokenHelper.generateToken({ id: user.id });
+
+    // Generamos los dos tokens
+    const authToken = TokenHelper.generateAuthToken({ id: user.id });
+    const refreshToken = TokenHelper.generateRefreshToken({ id: user.id });
+
+    // Guardamos los tokens en la base de datos
+    const updateProjection = { ...this.defaultProjection, authToken: true, refreshToken: true, tokensValid: true };
+    const updateData = {
+      authToken,
+      refreshToken,
+      tokensValid: true,
+      name: user.name,
+      lastname: user.lastname,
+      email: user.email,
+      password: user.password,
+    } as IUser;
+
+    await this.userRepository.update(user.id!, updateData, updateProjection);
+
     logger.info(`AuthService: Login successful for email: ${email}`);
+<<<<<<< HEAD
 <<<<<<< Updated upstream
     return { ...user, token };
 =======
+=======
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
     return {
       ...user,
       authToken,
@@ -67,7 +89,11 @@ export class AuthService {
 
     if (!user) {
       logger.warn(`AuthService: User not found for id: ${userId}`);
+<<<<<<< HEAD
       throw new ApplicationError('User not found', httpStatus.NOT_FOUND);
+=======
+      throw new AppError('User not found', httpStatus.NOT_FOUND);
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
     }
 
     // Creamos un objeto parcial para actualizar solo el campo tokensValid
@@ -84,6 +110,9 @@ export class AuthService {
     await this.userRepository.update(userId, updateData, updateProjection);
 
     logger.info(`AuthService: User ${userId} logged out successfully`);
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
   };
 }

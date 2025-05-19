@@ -24,9 +24,11 @@ export class AuthController {
       const { email, password } = req.body;
       const user = await this.authService.login(email, password);
 
+      // Solo enviar información relevante en la respuesta
       const response = {
         message: 'Login successful',
-        data: user,
+        authToken: user.authToken,
+        refreshToken: user.refreshToken,
       };
       res.send(response);
     } catch (error) {
@@ -64,8 +66,11 @@ export class AuthController {
       next(error);
     }
   };
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
+=======
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
 
   logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     logger.debug('Controller: Received logout request');
@@ -74,7 +79,11 @@ export class AuthController {
 
       if (!userId) {
         logger.warn('Controller: No user ID provided for logout');
+<<<<<<< HEAD
         throw new ApplicationError('User ID is required', httpStatus.BAD_REQUEST);
+=======
+        throw new AppError('User ID is required', httpStatus.BAD_REQUEST);
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
       }
 
       await this.authService.logout(userId);
@@ -82,13 +91,21 @@ export class AuthController {
       res.json({ message: 'Logout successful' });
     } catch (error) {
       logger.debug('Controller: Error during logout');
+<<<<<<< HEAD
       if (!(error instanceof ApplicationError)) {
         error = new ApplicationError('Logout failed', httpStatus.INTERNAL_SERVER_ERROR, {
+=======
+      if (!(error instanceof AppError)) {
+        error = new AppError('Logout failed', httpStatus.INTERNAL_SERVER_ERROR, {
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
           originalError: error,
         });
       }
       next(error);
     }
   };
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
 }

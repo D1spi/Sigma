@@ -11,14 +11,19 @@ export interface IUserModel extends Omit<IUser, 'id'>, mongoose.Document {
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    lastname: { type: String, required: true },
     email: {
       type: String,
       required: true,
       unique: true,
     },
     password: { type: String, required: true },
-    birthday: { type: Date, required: true },
+    address: { type: String, required: false },
+    birthday: { type: Date, required: false },
     isBlocked: { type: Boolean, default: false },
+    authToken: { type: String, required: false },
+    refreshToken: { type: String, required: false },
+    tokensValid: { type: Boolean, default: true },
   },
   {
     timestamps: true, // Add createdAt and updatedAt fields automatically

@@ -6,9 +6,14 @@ import Joi from 'joi';
 export class AuthValidator {
   private static readonly email = Joi.string().email();
   private static readonly password = Joi.string();
+  private static readonly userId = Joi.string().required();
 
   static readonly loginSchema = Joi.object({
     email: AuthValidator.email.required(),
     password: AuthValidator.password.required(),
+  });
+
+  static readonly logoutSchema = Joi.object({
+    userId: AuthValidator.userId,
   });
 }

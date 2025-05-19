@@ -18,12 +18,21 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
   }
   try {
     const decoded = TokenHelper.verifyToken(token);
+    // Asignar el usuario decodificado tanto a req.body.user (para compatibilidad)
+    // como a req.user (para cumplir con la interfaz IAuthRequest)
     req.body.user = decoded;
+    (req as any).user = decoded;
     logger.info('checkToken middleware: Token verified successfully');
     next();
+<<<<<<< HEAD
 <<<<<<< Updated upstream
   } catch (error) {
     logger.warn('checkToken middleware: Invalid token', { error: error.message });
+=======
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.warn('checkToken middleware: Invalid token', { error: errorMessage });
+>>>>>>> 5dc0d7b9b172e43b94c1d730967e1be908062443
     next(new AppError('Invalid token.', httpStatus.UNAUTHORIZED));
 =======
   } catch (error: unknown) {
@@ -33,3 +42,6 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
 >>>>>>> Stashed changes
   }
 };
+
+// Alias for checkToken to maintain consistency
+export const authMiddleware = checkToken;
